@@ -11,7 +11,34 @@ import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 @ConfigurationProperties(prefix = "security.ldap")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    String passwordAttribute = "userPassword";
+    String managerPassword = "admin";
+    String managerDn = "cn=admin,dc=example,dc=org";
+    String userDnPattern = "uid={0},ou=people";
+
     String url;
+
+    boolean useAnonymousBind = true;
+
+    public void setPasswordAttribute(String passwordAttribute) {
+        this.passwordAttribute = passwordAttribute;
+    }
+
+    public void setManagerPassword(String managerPassword) {
+        this.managerPassword = managerPassword;
+    }
+
+    public void setManagerDn(String managerDn) {
+        this.managerDn = managerDn;
+    }
+
+    public void setUserDnPattern(String userDnPattern) {
+        this.userDnPattern = userDnPattern;
+    }
+
+    public void setUseAnonymousBind(boolean useAnonymousBind) {
+        this.useAnonymousBind = useAnonymousBind;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -25,24 +52,35 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         System.out.println("url = " + url);
-        auth
-                .ldapAuthentication()
-                .userDnPatterns("uid={0},ou=people")
-//                .groupSearchBase("ou=groups")
-                .contextSource()
-//                .root("dc=tudelft,dc=example,dc=org")
-                .managerDn("cn=admin,dc=example,dc=org")
-                .managerPassword("admin")
-                .url(url)
-                .and()
-                .passwordCompare()
-                .passwordEncoder(new LdapShaPasswordEncoder())
-                .passwordAttribute("userPassword");
+        System.out.println("useAnonymousBind = " + useAnonymousBind);
+        if (useAnonymousBind) {
+            auth
+                    .ldapAuthentication()
+                    .userDnPatterns(userDnPattern)
+                    .contextSource()
+                    .url(url)
+                    .and()
+                    .passwordCompare()
+                    .passwordEncoder(new LdapShaPasswordEncoder())
+                    .passwordAttribute(passwordAttribute);
+
+
+        } else {
+
+            auth
+                    .ldapAuthentication()
+                    .userDnPatterns(userDnPattern)
+                    .contextSource()
+                    .managerDn(managerDn)
+                    .managerPassword(managerPassword)
+                    .url(url)
+                    .and()
+                    .passwordCompare()
+                    .passwordEncoder(new LdapShaPasswordEncoder())
+                    .passwordAttribute(passwordAttribute);
+        }
     }
 
-    public String getUrl() {
-        return url;
-    }
 
     public void setUrl(String url) {
         this.url = url;
