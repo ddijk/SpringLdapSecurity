@@ -40,6 +40,11 @@
             <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stucomm.explorer.plugin.authentication</groupId>
+            <artifactId>ldap-plugin</artifactId>
+            <version>0.0.12</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
